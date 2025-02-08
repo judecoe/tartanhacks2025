@@ -1,59 +1,58 @@
-// FOR MATT/KIERAN
-// targetTab.url is the url you guys need
+let lastProcessedData = null;
+let socket = null;
+
+function connectWebSocket() {
+  socket = new WebSocket("ws://localhost:8765");
+
+  socket.onopen = () => {
+    console.log("✅ WebSocket connected successfully.");
+  };
+
+  socket.onerror = (error) => {
+    console.error("❌ WebSocket error:", error);
+  };
+
+  socket.onclose = () => {
+    console.warn("⚠️ WebSocket closed. Attempting to reconnect...");
+    setTimeout(connectWebSocket, 2000); // Reconnect after 2 seconds
+  };
+}
+
+// Initialize WebSocket connection
+connectWebSocket();
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "findTopHatTab") {
-    chrome.tabs.query({}, (tabs) => {
-      let targetTab = tabs.find(
-        (tab) => tab.url && tab.url.startsWith("https://app.tophat.com")
-      );
+  const messageKey = `${message.url}-${message.question}-${message.answers?.length}`;
+  if (lastProcessedData === messageKey) return;
+  lastProcessedData = messageKey;
 
-      if (targetTab) {
-        // Activate the tab if it's found
-        chrome.tabs.update(targetTab.id, { active: true });
+  if (message.url) {
+    console.group("📚 TopHat Content Extracted");
+    console.log("🔗 URL:", message.url);
 
-        // Establish WebSocket connection to the server
-        let socket = new WebSocket('ws://localhost:8765');
+    if (message.question) {
+      console.log("❓ Question:", message.question);
+    }
 
-        socket.onopen = () => {
-          console.log('WebSocket connection established');
+    if (message.answers?.length > 0) {
+      console.group("📝 Answer Choices:");
+      message.answers.forEach((answer) => {
+        console.log(`${answer.option}. ${answer.text}`);
+      });
+      console.groupEnd();
+    }
+    console.groupEnd();
 
-          // Send the URL to the WebSocket server
-          const url = targetTab.url;
-          const message = JSON.stringify({ url: url });
-          socket.send(message);
-
-          // Send response back once URL is sent
-          sendResponse({ success: true });
-        };
-
-        // Listen for messages from the WebSocket server
-        socket.onmessage = (event) => {
-          const response = JSON.parse(event.data);
-          console.log("Response from server:", response.status);
-        };
-
-        // Handle WebSocket errors
-        socket.onerror = (error) => {
-          console.error('WebSocket Error:', error);
-        };
-
-        // Handle WebSocket connection close
-        socket.onclose = () => {
-          console.log('WebSocket connection closed');
-        };
-      } else {
-        sendResponse({ error: "TopHat tab not found. Make sure you have TopHat open!" });
-      }
-    });
-    return true; // Keep the message channel open for asynchronous response
-  }
-
-  if (message.action === "getTopHatUrl") {
-    chrome.storage.local.get("tophatUrl", (data) => {
-      sendResponse({ url: data.tophatUrl || "No URL stored yet" });
-    });
-
-    return true;
+    // Ensure WebSocket is open before sending data
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ url: message.url }));
+      console.log("📤 Sent URL to WebSocket server:", message.url);
+    } else {
+      console.warn("⚠️ WebSocket not ready, will retry sending...");
+      socket.onopen = () => {
+        socket.send(JSON.stringify({ url: message.url }));
+        console.log("📤 Sent URL after reconnect:", message.url);
+      };
+    }
   }
 });

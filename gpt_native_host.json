@@ -1,0 +1,7 @@
+{
+  "name": "tophat.selenium.host",
+  "description": "Receives TopHat questions and controls Selenium from Chrome Extension.",
+  "path": "/Users/judegilligan/Downloads/career/tartanhacks2025/selenium_tophat_test.py",
+  "type": "stdio",
+  "allowed_origins": ["chrome-extension://jbmlpamcdnhbhmfanapljjhikgpgpjam/"]
+}

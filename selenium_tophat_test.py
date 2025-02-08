@@ -4,7 +4,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import asyncio
 import json
 import websockets
 import sys
@@ -163,25 +162,25 @@ async def main():
             # Add debugging information
 
 
-            # #Go into question
-            # open_element.click()
+        # Go into question
+        # open_element.click()
 
-            # # Retrieve question type 
-            # quest_type = gpt_answers.get_quest_type()
-            # # Retrieve answers
-            # answer = gpt_answers.get_answers()
-
-
-            # # Working with webpage elements------------------
+        # # Retrieve question type 
+        # quest_type = gpt_answers.get_quest_type()
+        # # Retrieve answers
+        # answer = gpt_answers.get_answers()
 
 
+        # # Working with webpage elements------------------
 
-            # # Use case for multiple choice question
-            # if quest_type == "Multiple Choice (Single Answer)" or "Likert Scale":
-                # count = gpt_answers.get_count()
-                # answer = answer.upper()
-                # element = driver.find_element(By.CSS_SELECTOR, f"[aria-label^={answer}]")
-                # element.click()
+
+
+        # # Use case for multiple choice question
+        # if quest_type == "Multiple Choice (Single Answer)" or "Likert Scale":
+            # count = gpt_answers.get_count()
+            # answer = answer.upper()
+            # element = driver.find_element(By.CSS_SELECTOR, f"[aria-label^={answer}]")
+            # element.click()
 
                 # enter element 
                 # enter_element = driver.find_element(By.XPATH, "//span[text()='Enter']")

@@ -1,19 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "AutoHat - Auto-Solving TopHat Questions",
-  "description": "AutoHat detects and answers TopHat questions in real-time.",
+  "name": "TopHat Extractor",
   "version": "1.0",
-
+  "permissions": ["activeTab", "scripting"],
   "action": {
-    "default_popup": "hello.html",
-    "default_icon": "images/tophat.png"
+    "default_popup": "popup.html"
   },
-
-  "permissions": ["storage", "activeTab", "scripting", "tabs", "debugger"],
-
-  "host_permissions": ["https://app.tophat.com/*"],
-
   "background": {
     "service_worker": "scripts/background.js"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://app.tophat.com/*"],
+      "js": ["scripts/content.js"]
+    }
+  ]
 }

@@ -13,6 +13,7 @@ This Chrome extension automatically answers TopHat questions correctly for class
 1. Navigate to a TopHat classroom page.
 ![Tophat Photo](images/tophat_photo.png)
 2. Click the chrome extension icon and select "Find TopHat Tab".
+![Extension Photo](images/extension_photo.png)
 3. Leave the page open for the duration of your class.
 4. The extension will automatically detect, answer, & submit answers.
 
@@ -20,7 +21,7 @@ This Chrome extension automatically answers TopHat questions correctly for class
 ## Demo
 _A demo video will be added here soon._
 
-![Demo Video](PLACEHOLDER_FOR_VIDEO)
+![Demo Video](images/tophat_demo.mp4)
 
 ## Disclaimer
 This extension is intended for educational and personal use only. Use responsibly and in accordance with your institution's academic policies.

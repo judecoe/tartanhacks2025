@@ -77,10 +77,12 @@ class gpt_answers:
         #parse response and return cleaned answers
         #questions with multiple answers will be returned as a list
         if quest_type == "Word Answer" or quest_type == "Long Answer":
-            return response
+            return response, quest_type
         else:
             response = response.lower()
             if quest_type == "Fill in the Blank" or quest_type == "Multiple Choice (Multi Answer)":
                 response = response.split(",")
                 response = [answ.lstrip() for answ in response]
-            return response
+            return response, quest_type
+
+

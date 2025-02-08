@@ -1,22 +1,12 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const toggleSwitch = document.getElementById("toggle");
-
-  chrome.storage.sync.get("autoAnswerEnabled", function (data) {
-    toggleSwitch.checked = data.autoAnswerEnabled ?? false;
-  });
-
-  toggleSwitch.addEventListener("change", function () {
-    const isEnabled = toggleSwitch.checked;
-
-    chrome.storage.sync.set({ autoAnswerEnabled: isEnabled });
-
-    chrome.runtime.sendMessage(
-      { type: "toggle_auto_answer", enabled: isEnabled },
-      function (response) {
-        console.log("Message sent to background.js:", isEnabled);
-      }
-    );
-
-    console.log("Toggle switched:", isEnabled);
+document.getElementById("findTab").addEventListener("click", () => {
+  chrome.runtime.sendMessage({ action: "findTopHatTab" }, (response) => {
+    if (response.error) {
+      document.getElementById("output").textContent = response.error;
+    } else {
+      document.getElementById(
+        "output"
+      ).textContent = `TopHat found: ${response.url}`;
+      chrome.tabs.update(response.tabId, { active: true }); // Bring tab into focus
+    }
   });
 });

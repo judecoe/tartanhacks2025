@@ -17,7 +17,6 @@ class gpt_functions:
         self.question_type = {
             "Multiple Choice (Single Answer)" : "You will be asked a multiple choice question. You may only select one answer. Respond only with the letter corresponding to the correct answer, no punctuation.",
             "Multiple Choice (Multi Answer)" : "You will be asked a multiple choice question. You may select multiple answers. Respond only with the letters corresponding to the correct answers. Each letter answer should be separated by a comma.",
-            "True or False" : "You will be asked a true or false question. Respond with one word, no punctuation. The only responses you should give is 'true' or 'false'",
             "Likert Scale" : "You will be asked a multiple choice question. The question will ask about your sentiment on a topic. Answer as if you are a college student who is strongly familiar with the course material. You may only select one answer. Respond only with the letter corresponding to the correct answer, no punctuation",
             "Numeric Answer" : "You will be asked a question with a numeric answer. Respond only with the number that answers the question correctly, no punctuation. ",
             "Word Answer" : "You will be asked a question with a word answer. Respond only with the word or phrase that answers the question correctly. ",

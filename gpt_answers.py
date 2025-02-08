@@ -13,7 +13,11 @@ class gpt_answers:
     # call function that provides answers & question type
     answers, quest_type = gpt_functions.create_prompts(quest_type, question, answer_options)
 
-    def get_answers():
+    '''returns array if quest_type is Fill in the Blank or Multi Answer Multiple Choice 
+    returns string if Word Answer or Long Answer
+    returns char (single letter string) if Single Answer Multiple Choice or Likert Scale
+    returns int if Numeric Answer '''
+    def get_answers(): 
         return answers
     def get_quest_type():
         return quest_type

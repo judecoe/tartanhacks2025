@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         chrome.tabs.update(targetTab.id, { active: true });
 
         // Establish WebSocket connection to the server
-        socket = new WebSocket('ws://localhost:8765');
+        let socket = new WebSocket('ws://localhost:8765');
 
         socket.onopen = () => {
           console.log('WebSocket connection established');

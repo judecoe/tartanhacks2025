@@ -50,7 +50,7 @@ class gpt_functions:
             #tophat will throw an error and tell you what field to complete
             #if field is a button just select random answer 
             #if field is a text entry just enter random text and submit 
-            return False
+            return False, False
 
 
     #---------------------------------------------------------------#

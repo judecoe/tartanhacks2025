@@ -1,4 +1,3 @@
-// content.js
 function extractTopHatContent() {
   const url = window.location.href;
 
@@ -26,7 +25,7 @@ function extractTopHatContent() {
     );
     return Array.from(answerElements)
       .map((element, index) => ({
-        option: String.fromCharCode(65 + index),
+        option: String.fromCharCode(65 + index), // A, B, C, etc.
         text: element.innerText.trim(),
       }))
       .filter((answer) => answer.text.length > 0); // Filter out empty answers
@@ -44,7 +43,15 @@ function extractTopHatContent() {
       timestamp: new Date().toISOString(),
     };
 
-    chrome.runtime.sendMessage(data);
+    // Send extracted data to the background script
+    chrome.runtime.sendMessage(data, (response) => {
+      if (chrome.runtime.lastError) {
+        console.warn("Error sending message:", chrome.runtime.lastError);
+      } else {
+        console.log("Data sent to background script:", response);
+      }
+    });
+
     return true;
   }
   return false;
@@ -61,7 +68,7 @@ function initializeExtraction() {
   // Try extraction immediately
   if (extractTopHatContent()) {
     // If successful, set up a lighter monitoring system
-    const observer = new MutationObserver((mutations) => {
+    const observer = new MutationObserver(() => {
       extractTopHatContent();
     });
 

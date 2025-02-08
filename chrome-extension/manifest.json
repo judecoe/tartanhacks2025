@@ -2,10 +2,11 @@
   "manifest_version": 3,
   "name": "TopHat Extractor",
   "version": "1.0",
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["activeTab", "scripting", "nativeMessaging", "downloads"],
   "action": {
     "default_popup": "popup.html"
   },
+  "host_permissions": ["*://app.tophat.com/*"],
   "background": {
     "service_worker": "scripts/background.js"
   },

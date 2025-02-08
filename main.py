@@ -1,4 +1,6 @@
 import selenium
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 
-options = get_default_chrome_options()
-driver = webdriver.Chrome(options=options)
+service = Service(executable_path="chromedriver.exe")
+driver = webdriver.Chrome(service=service)

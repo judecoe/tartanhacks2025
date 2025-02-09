@@ -1,11 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-<<<<<<< HEAD
 import asyncio
-=======
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
->>>>>>> 97664128df39065aa68aea0e3b5e467deb1f8fa0
 import json
 import websockets
 import sys
@@ -104,9 +101,7 @@ async def main():
     except KeyboardInterrupt:
         print("\n👋 Received exit signal")
     except Exception as e:
-<<<<<<< HEAD
         print(f"❌ Error: {e}")
-=======
         print(f"❌ An error occurred: {e}")
     
             # Add debugging information
@@ -154,7 +149,6 @@ async def main():
             # # Perform actions on the element (e.g., click or send text)
             # element.click()  # or element.send_keys("some text")
     
->>>>>>> 97664128df39065aa68aea0e3b5e467deb1f8fa0
     finally:
         if driver:
             try:

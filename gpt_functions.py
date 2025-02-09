@@ -55,12 +55,22 @@ class gpt_functions:
     #---------------------------------------------------------------#
     #                       #API Calls
 
+    #ARGUMENTS: 
+    #dev_prompt: This is the question type instruction from self.question_type dictionary. (String)
+    #question_prompt: Correctly formatted question and answer options for the AI to easily parse. (String)
+    #quest_type: This is the question type that matches one of keys in self.question_type. (String)
     def prompt_gpt(self, dev_prompt, question_prompt, quest_type):
 
+        # First, make an API call to OpenAI's chat completion endpoint.
         chat_completion = self.client.chat.completions.create(
+
+            # Define roles for the conversation history with AI instructions and the user question
+                # "system" – Provides general instructions to the model (like defining behavior).
+                # "user" – Represents the actual user interacting with the AI.
+                # "assistant" – Represents the AI’s response.
             messages=[
                 {
-                    "role": "developer",
+                    "role": "system",
                     "content": dev_prompt
                 },
                 {
@@ -71,8 +81,11 @@ class gpt_functions:
             model="gpt-4o",
         )
 
+        # The response from OpenAI is usually a list of choices. This accesses the first choice and extracts the 
+        # text response from the AI
         response = (chat_completion.choices[0].message.content)
-
+        print(response)
+        
         #parse response and return cleaned answers
         #questions with multiple answers will be returned as a list
         if quest_type == "Word Answer" or quest_type == "Long Answer":
@@ -83,5 +96,5 @@ class gpt_functions:
                 response = response.split(",")
                 response = [answ.lstrip() for answ in response]
             return response, quest_type
-
+        
 

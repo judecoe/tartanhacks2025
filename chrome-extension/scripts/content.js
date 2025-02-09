@@ -1,4 +1,18 @@
+/* 
+This file contains that functions and components responsible for interacting with the webpage. 
+It can extract things like questions and answers from the tophat page and send it to the backend server 
+to be processed by OpenAI model and also receive from that server to interact with the right components accordingly
+  Two-way interaction:
+    1. Can receive information and get elements from webpage to be processed in background.js and by OpenAI through the websocket server.
+    2. Can also get responses back from websocket server and use those to interact with the webpage (clicking and submitting correct
+    answer choice)
+
+*/
+
+//Keeps track of already processed questions
 let lastProcessedQuestion = null;
+
+// DOM Interaction Functions-------------------------------------------------------
 
 function clickSubmit() {
   // Try different known TopHat button classes and attributes
@@ -12,10 +26,11 @@ function clickSubmit() {
     '[class*="submitButton"]',
   ];
 
-  // Try each selector
+  // Try each selector and see if its the right submit button
   for (const selector of possibleSelectors) {
     const button = document.querySelector(selector);
     if (button) {
+      //This function just delays it by 500ms before executing code inside it. 
       setTimeout(() => {
         button.click();
         console.log("Clicked submit button with selector:", selector);
@@ -100,6 +115,7 @@ function clickOpenButton() {
   return false;
 }
 
+//This function finds all the answer options on the page a clicks the one corresponding to answer argument
 function clickAnswer(answer) {
   const answerElements = document.querySelectorAll(
     '[class*="Listsstyles__ListItem"]'
@@ -190,10 +206,17 @@ function debugNotificationElements() {
   });
 }
 
+
+
+//Data Extraction and Processing Functions-------------------------------------------------------------------------------------------
+
+// This function handles extracting the questions and answer initially
 function extractTopHatContent() {
+  //Do nothing if not on tophat tab
   const url = window.location.href;
   if (!url.includes("tophat.com")) return;
 
+  //Page crawler functions for finding and extracting questions and answers. 
   function findQuestion() {
     const possibleQuestions = document.querySelectorAll(
       '[class*="OverrideText"]'
@@ -211,20 +234,27 @@ function extractTopHatContent() {
     const answerElements = document.querySelectorAll(
       '[class*="Listsstyles__ListItem"]'
     );
+
+    // This return statement first converts the Node List to javascript Array and maps for each element and element index,
+    // the associated answer optiona and text while filtering out any answers that have no text. 
     return Array.from(answerElements)
       .map((element, index) => ({
         option: String.fromCharCode(65 + index),
         text: element.innerText.trim(),
       }))
       .filter((answer) => answer.text.length > 0);
+
   }
 
+  //Before initializing and checking observer, first check if this question had been processed already.
+  //This is also where the data is also extracted and sent to background.js for server processing
   const questionText = findQuestion();
 
   if (questionText && questionText !== lastProcessedQuestion) {
     lastProcessedQuestion = questionText;
     const answers = findAnswers();
 
+    //Formats all the extraced webpage data in a dictionary 
     const data = {
       url,
       question: questionText,
@@ -232,6 +262,7 @@ function extractTopHatContent() {
       timestamp: new Date().toISOString(),
     };
 
+    //Sends the message with the data to the backend (background.js) to be processed 
     chrome.runtime.sendMessage(data, (response) => {
       if (chrome.runtime.lastError) {
         console.warn("Error sending message:", chrome.runtime.lastError);
@@ -245,10 +276,14 @@ function extractTopHatContent() {
   return false;
 }
 
-// Watch for DOM changes
+// Watch for DOM changes by instantiating Document Object Model Observer
 const observer = new MutationObserver((mutations) => {
+  // This is callback function which checks if the mutation is of type "childList", 
+  // which means that child nodes (elements) were added or removed from the DOM. Most common type 
+  // for detecting when new content (like questions or answers) is added to the page. 
   for (const mutation of mutations) {
     if (mutation.type === "childList") {
+      // Then call all necessary functions when something is detected 
       extractTopHatContent();
       clickOpenButton();
       clickUnansweredQuestion();
@@ -257,27 +292,10 @@ const observer = new MutationObserver((mutations) => {
   }
 });
 
-// Add to initialization
-function initializeExtraction() {
-  extractTopHatContent();
-  clickOpenButton();
-  clickUnansweredQuestion();
-  debugNotificationElements();
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    characterData: true,
-  });
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initializeExtraction);
-} else {
-  initializeExtraction();
-}
-
-// Listen for messages from background script
+// Listen for messages from background script  
+// This event listener listens for messages sent via chrome.runtime.sendMessage() from other parts 
+// of your Chrome extension (like the background script or popup, or through the websocket server).
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "fillAnswer") {
     console.log("Received GPT answer:", message.answer);
@@ -293,6 +311,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+
+
+//Initialization Procedures (when page in first loaded this setups up everything in the script)---------------------------------------
+
+// Add to initialization 
+function initializeExtraction() {
+  extractTopHatContent();
+  clickOpenButton();
+  clickUnansweredQuestion();
+  debugNotificationElements();
+
+  //Starts observing Dom by calling MutationObserver Object .observe and specifying which elements to observe.
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+}
+
+//Checks current loading state of document and initializes the observer and immediately updates 
+// everything in either case (if document already loaded or is loading)
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeExtraction);
+} else {
+  initializeExtraction();
+}
+
+
+
+//After window is unloaded, disconnect the observer--------------------------------------
 window.addEventListener("unload", () => {
   observer.disconnect();
 });

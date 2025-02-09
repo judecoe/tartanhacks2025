@@ -5,10 +5,13 @@ function cleanText(text) {
 }
 
 function connectWebSocket() {
+  //Check if websocket server already running
   if (socket?.readyState === WebSocket.CONNECTING) return;
 
+  //Initialize websocket on port 8765
   socket = new WebSocket("ws://localhost:8765");
 
+  //Defining socket callback functions
   socket.onopen = () => {
     console.log("WebSocket connected");
   };
@@ -48,7 +51,13 @@ function connectWebSocket() {
   return socket;
 }
 
+//Creates the websocket connection when first running script
 connectWebSocket();
+
+
+
+
+
 
 async function sendToServer(message) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {

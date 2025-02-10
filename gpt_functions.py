@@ -22,6 +22,7 @@ class gpt_functions:
             "Word Answer" : "You will be asked a question with a word answer. Respond only with the word or phrase that answers the question correctly. ",
             "Fill in the Blank" : "You will be asked a fill in the blank question. Respond with a word that best fills each blank. Each answer should be separated by a comma. The answers should be in the same order that their corresponding blanks appear in the question. ONLY GIVE THE WORD THAT GOES IN THE BLANK.",
             "Long Answer" : "You will be asked a long answer question. Type a short response to the question. Your response should be 3-6 sentences long.",
+            "True or False": "You will be asked a true or false question. Respond only with the word True or False."
         }
 
 
@@ -97,4 +98,5 @@ class gpt_functions:
                 response = [answ.lstrip() for answ in response]
             return response, quest_type
         
+
 

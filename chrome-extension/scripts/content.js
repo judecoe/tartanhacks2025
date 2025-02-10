@@ -237,6 +237,7 @@ function extractTopHatContent() {
 
     // This return statement first converts the Node List to javascript Array and maps for each element and element index,
     // the associated answer optiona and text while filtering out any answers that have no text. 
+
     return Array.from(answerElements)
       .map((element, index) => ({
         option: String.fromCharCode(65 + index),
@@ -280,11 +281,11 @@ function extractTopHatContent() {
 const observer = new MutationObserver((mutations) => {
   // This is callback function which checks if the mutation is of type "childList", 
   // which means that child nodes (elements) were added or removed from the DOM. Most common type 
-  // for detecting when new content (like questions or answers) is added to the page. 
+  // for detecting when new content (like questions, answers, or the open button) are added to the page. 
   for (const mutation of mutations) {
     if (mutation.type === "childList") {
       // Then call all necessary functions when something is detected 
-      extractTopHatContent();
+      extractTopHatContent(); 
       clickOpenButton();
       clickUnansweredQuestion();
       debugNotificationElements();
@@ -305,6 +306,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       console.warn("Could not handle answer:", message.answer);
     }
   }
+
+  //This handles the case where you switch to this tab from another tab and reinitialize content.js to still work.
   if (message.action === "reinitialize") {
     lastProcessedQuestion = null;
     extractTopHatContent();

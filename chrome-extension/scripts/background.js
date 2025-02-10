@@ -24,18 +24,23 @@ function connectWebSocket() {
     console.error("WebSocket error:", error);
   };
 
+  //This onmessage function listens for messages from websocket server with the proper question and answer type
   socket.onmessage = async (event) => {
     try {
+      //Parse into javascript object
       const response = JSON.parse(event.data);
       if (response.error) {
         console.error("Server error:", response.error);
         return;
       }
 
+      //Then we get the currently active tab from chrome
       const tabs = await chrome.tabs.query({
         active: true,
         currentWindow: true,
       });
+
+      //Finally, send a message back to server content.js with right answer for the question type for a specific tab. 
       if (tabs[0]) {
         await chrome.tabs.sendMessage(tabs[0].id, {
           action: "fillAnswer",
@@ -55,12 +60,10 @@ function connectWebSocket() {
 connectWebSocket();
 
 
-
-
-
-
 async function sendToServer(message) {
+  //Check if websocket is open first. 
   if (!socket || socket.readyState !== WebSocket.OPEN) {
+    //If socket not open, await a new Promise that is resolved and waits 500 ms before moving on
     socket = connectWebSocket();
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
@@ -81,18 +84,23 @@ async function sendToServer(message) {
           ? "Multiple Choice (Single Answer)"
           : "Word Answer",
     };
+
+    //Send data through websocket to servergpt
     socket.send(JSON.stringify(data));
+    
   } catch (error) {
     console.error("Error sending to server:", error);
   }
 }
 
+//Receives message from content.js to send to servergpt.py
 chrome.runtime.onMessage.addListener((message) => {
   if (message.url?.includes("tophat.com")) {
     sendToServer(message);
   }
 });
 
+// Thit event listener detects if a tab is fully loaded and is tophat.com
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete" && tab.url?.includes("tophat.com")) {
     chrome.tabs.sendMessage(tabId, { action: "reinitialize" }).catch(() => {});

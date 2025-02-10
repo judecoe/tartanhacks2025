@@ -100,20 +100,36 @@ chrome.runtime.onMessage.addListener((message) => {
   }
 });
 
-// Thit event listener detects if a tab is fully loaded and is tophat.com
+
+// Handle tab updates (refresh, navigation)
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete" && tab.url?.includes("tophat.com")) {
-    chrome.tabs.sendMessage(tabId, { action: "reinitialize" }).catch(() => {});
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      files: ["scripts/content.js"]
+    }).catch((error) => {
+      console.warn("Error injecting content script:", error);
+      // Fallback to reinitialization if script injection fails
+      chrome.tabs.sendMessage(tabId, { action: "reinitialize" }).catch(() => {});
+    });
   }
 });
 
-// //Reload content.js on refresh
-// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-//   if (changeInfo.status === "complete" && tab.url.includes("tophat.com")) {
-//     chrome.scripting.executeScript({
-//       target: { tabId: tabId },
-//       files: ["scripts/content.js"]
-//     }).catch((err) => console.warn("Error injecting content script:", err));
-//   }
-// });
+// Handle tab activation (switching between tabs)
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  try {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    if (tab.url?.includes("tophat.com")) {
+      chrome.tabs.sendMessage(activeInfo.tabId, { action: "reinitialize" }).catch(() => {
+        // If message fails (content script not loaded), inject the script
+        chrome.scripting.executeScript({
+          target: { tabId: activeInfo.tabId },
+          files: ["scripts/content.js"]
+        }).catch(error => console.warn("Error injecting content script:", error));
+      });
+    }
+  } catch (error) {
+    console.error("Error handling tab activation:", error);
+  }
+});
 

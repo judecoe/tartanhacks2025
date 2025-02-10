@@ -75,7 +75,7 @@ async def handle_connection(websocket):
                 # Save response
                 save_response(question, response_data)
 
-                # Send the json data through the websocket 
+                # Send the json data back through the websocket to background.js
                 await websocket.send(json.dumps(response_data))
                 
             except Exception as e:

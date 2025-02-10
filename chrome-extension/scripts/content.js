@@ -12,6 +12,7 @@ to be processed by OpenAI model and also receive from that server to interact wi
 //Keeps track of already processed questions
 let lastProcessedQuestion = null;
 
+console.log("✅ content.js is running...")
 //
 
 // DOM Interaction Functions-------------------------------------------------------
@@ -240,7 +241,6 @@ function extractTopHatContent() {
 
     // This return statement first converts the Node List to javascript Array and maps for each element and element index,
     // the associated answer optiona and text while filtering out any answers that have no text. 
-
     return Array.from(answerElements)
       .map((element, index) => ({
         option: String.fromCharCode(65 + index),
@@ -281,6 +281,33 @@ function extractTopHatContent() {
   return false;
 }
 
+
+
+// Listen for messages from background script  
+// This event listener listens for messages sent via chrome.runtime.sendMessage() from other parts 
+// of your Chrome extension (like the background script or popup, or through the websocket server).
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  //This handles the case where you switch to this tab from another tab and reinitialize content.js to still work.
+  if (message.action === "reinitialize") {
+    lastProcessedQuestion = null;
+    
+    console.log("Reinitializing content script...");
+    initializeExtraction();  // Restart everything properly
+    
+    console.log("Content script reinitialized.");
+  }
+  
+  if (message.action === "fillAnswer") {
+    console.log("Received GPT answer:", message.answer);
+    if (clickAnswer(message.answer)) {
+      console.log("Successfully handled answer");
+    } else {
+      console.warn("Could not handle answer:", message.answer);
+    }
+  }
+});
+
+
 // Watch for DOM changes by instantiating Document Object Model Observer
 const observer = new MutationObserver((mutations) => {
   // This is callback function which checks if the mutation is of type "childList", 
@@ -298,38 +325,13 @@ const observer = new MutationObserver((mutations) => {
 });
 
 
-// Listen for messages from background script  
-// This event listener listens for messages sent via chrome.runtime.sendMessage() from other parts 
-// of your Chrome extension (like the background script or popup, or through the websocket server).
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "fillAnswer") {
-    console.log("Received GPT answer:", message.answer);
-    if (clickAnswer(message.answer)) {
-      console.log("Successfully handled answer");
-    } else {
-      console.warn("Could not handle answer:", message.answer);
-    }
-  }
-
-  //This handles the case where you switch to this tab from another tab and reinitialize content.js to still work.
-  if (message.action === "reinitialize") {
-    lastProcessedQuestion = null;
-
-    console.log("Reinitializing content script...");
-    initializeExtraction();  // Restart everything properly
-
-    console.log("Content script reinitialized.");
-  }
-});
-
-
-
 //Initialization Procedures (when page in first loaded this setups up everything in the script)---------------------------------------
 
 // Add to initialization 
 function initializeExtraction() {
+  console.log("Initializing content script...");
+
   //Starts observing Dom by calling MutationObserver Object .observe and specifying which elements to observe.
-  console.log("initial function called");
   observer.observe(document.body, {
     childList: true,
     subtree: true,
@@ -338,19 +340,21 @@ function initializeExtraction() {
 
   //Delay the element search for DOM to load
   setTimeout(() => {
-  extractTopHatContent();
-  clickOpenButton();
-  clickUnansweredQuestion();
-  debugNotificationElements(); 
+    console.log("Running extraction functions...");
+    extractTopHatContent();
+    clickOpenButton();
+    clickUnansweredQuestion();
+    debugNotificationElements(); 
   }, 500)
 }
 
 //Checks current loading state of document and initializes the observer and immediately updates 
 // everything in either case (if document already loaded or is loading)
 if (document.readyState === "loading") {
-  console.log('detecting document');
+  console.log("Page loading, waiting for DOMContentLoaded...");
   document.addEventListener("DOMContentLoaded", initializeExtraction);
 } else {
+  console.log("Page already loaded, running initialization now.");
   initializeExtraction();
 }
 

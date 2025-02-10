@@ -1,0 +1,6 @@
+body {
+    width: 400px;  /* Fixed width */
+    height: 300px; /* Fixed height */
+    padding: 10px;
+    overflow: hidden; /* Prevents scrolling */
+}

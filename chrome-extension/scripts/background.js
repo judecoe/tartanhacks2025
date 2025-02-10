@@ -106,3 +106,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     chrome.tabs.sendMessage(tabId, { action: "reinitialize" }).catch(() => {});
   }
 });
+
+// //Reload content.js on refresh
+// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+//   if (changeInfo.status === "complete" && tab.url.includes("tophat.com")) {
+//     chrome.scripting.executeScript({
+//       target: { tabId: tabId },
+//       files: ["scripts/content.js"]
+//     }).catch((err) => console.warn("Error injecting content script:", err));
+//   }
+// });
+

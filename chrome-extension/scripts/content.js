@@ -12,6 +12,8 @@ to be processed by OpenAI model and also receive from that server to interact wi
 //Keeps track of already processed questions
 let lastProcessedQuestion = null;
 
+//
+
 // DOM Interaction Functions-------------------------------------------------------
 
 function clickSubmit() {
@@ -223,6 +225,7 @@ function extractTopHatContent() {
     );
     for (const element of possibleQuestions) {
       const text = element.innerText.trim();
+      //console.log(text);
       if (text && text.length > 0) {
         return text;
       }
@@ -250,6 +253,7 @@ function extractTopHatContent() {
   //Before initializing and checking observer, first check if this question had been processed already.
   //This is also where the data is also extracted and sent to background.js for server processing
   const questionText = findQuestion();
+  
 
   if (questionText && questionText !== lastProcessedQuestion) {
     lastProcessedQuestion = questionText;
@@ -310,7 +314,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   //This handles the case where you switch to this tab from another tab and reinitialize content.js to still work.
   if (message.action === "reinitialize") {
     lastProcessedQuestion = null;
-    extractTopHatContent();
+
+    console.log("Reinitializing content script...");
+    initializeExtraction();  // Restart everything properly
+
+    console.log("Content script reinitialized.");
   }
 });
 
@@ -320,22 +328,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Add to initialization 
 function initializeExtraction() {
-  extractTopHatContent();
-  clickOpenButton();
-  clickUnansweredQuestion();
-  debugNotificationElements();
-
   //Starts observing Dom by calling MutationObserver Object .observe and specifying which elements to observe.
+  console.log("initial function called");
   observer.observe(document.body, {
     childList: true,
     subtree: true,
     characterData: true,
   });
+
+  //Delay the element search for DOM to load
+  setTimeout(() => {
+  extractTopHatContent();
+  clickOpenButton();
+  clickUnansweredQuestion();
+  debugNotificationElements(); 
+  }, 500)
 }
 
 //Checks current loading state of document and initializes the observer and immediately updates 
 // everything in either case (if document already loaded or is loading)
 if (document.readyState === "loading") {
+  console.log('detecting document');
   document.addEventListener("DOMContentLoaded", initializeExtraction);
 } else {
   initializeExtraction();

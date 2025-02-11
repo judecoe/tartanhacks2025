@@ -197,23 +197,23 @@ function clickUnansweredQuestion() {
 }
 
 // Debug helper function
-function debugNotificationElements() {
-  console.log("Debugging notification elements:");
-  const allElements = document.querySelectorAll("*");
-  allElements.forEach((el) => {
-    if (el.textContent?.toLowerCase().includes("unanswered")) {
-      console.log("Found element with unanswered:", el);
-      console.log("Element HTML:", el.outerHTML);
-      console.log("Parent HTML:", el.parentElement?.outerHTML);
-    }
-  });
-}
+// function debugNotificationElements() {
+//   console.log("Debugging notification elements:");
+//   const allElements = document.querySelectorAll("*");
+//   allElements.forEach((el) => {
+//     if (el.textContent?.toLowerCase().includes("unanswered")) {
+//       console.log("Found element with unanswered:", el);
+//       console.log("Element HTML:", el.outerHTML);
+//       console.log("Parent HTML:", el.parentElement?.outerHTML);
+//     }
+//   });
+// }
 
 
 
 //Data Extraction and Processing Functions-------------------------------------------------------------------------------------------
 
-// This function handles extracting the questions and answer initially
+// This function handles extracting the questions and answers initially
 function extractTopHatContent() {
   //Do nothing if not on tophat tab
   const url = window.location.href;
@@ -253,6 +253,7 @@ function extractTopHatContent() {
   //Before initializing and checking observer, first check if this question had been processed already.
   //This is also where the data is also extracted and sent to background.js for server processing
   const questionText = findQuestion();
+  console.log(questionText);
   
 
   if (questionText && questionText !== lastProcessedQuestion) {
@@ -316,10 +317,11 @@ const observer = new MutationObserver((mutations) => {
   for (const mutation of mutations) {
     if (mutation.type === "childList") {
       // Then call all necessary functions when something is detected 
+      console.log("Observer running functions");
       extractTopHatContent(); 
       clickOpenButton();
       clickUnansweredQuestion();
-      debugNotificationElements();
+      //debugNotificationElements();
     }
   }
 });
@@ -344,7 +346,7 @@ function initializeExtraction() {
     extractTopHatContent();
     clickOpenButton();
     clickUnansweredQuestion();
-    debugNotificationElements(); 
+    //debugNotificationElements(); 
   }, 500)
 }
 

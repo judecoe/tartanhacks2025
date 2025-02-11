@@ -8,7 +8,73 @@
     <script src="popup/popup.js" defer></script>
   </head>
   <body>
-    <button id="findTab">Find TopHat Tab</button>
-    <p id="output"></p>
+    <!-- Header section including title, slogan, and logo-->
+    <div class = 'container'> 
+      <div class = 'header'> 
+        <img src="images/autohat_128.png" alt="Autohat Logo" class="logo">
+        <div class = 'title-container'> 
+          <h1 class="title">Autohat </h1>
+          <p class="slogan">Your Smart TopHat Assistant</p>
+        </div>
+      </div>
+
+      <!-- Divider element-->
+      <div class="divider"></div>
+
+      <!-- find Tab Button-->
+      <button id="findTab">Find TopHat Tab</button>
+
+      <!-- Instructions List-->
+      <div class="instructions">
+        <h2 class = 'gradient-text'>How to Use</h2>
+        <ol>
+          <li>Navigate to a TopHat classroom page</li>
+          <li>Click "Find TopHat Tab" above</li>
+          <li>Leave the page open during your class</li>
+          <li>Answers will be automatically detected and submitted</li>
+        </ol>
+      </div>
+
+      <!-- Status section showing if tab is connected and if auto answer mode is on -->
+      <div class="status-section">
+        <h2 class = 'gradient-text'>Status</h2>
+        <div class="status-item">
+          <div class="status-indicator inactive"></div>
+          <span>TopHat Tab Connection</span>
+        </div>
+        <div class="status-item">
+          <div class="status-indicator inactive"></div>
+          <span>Auto-Answer Mode</span>
+        </div>
+      </div>
+
+      <!-- Stats section with grid showing Questions answered, success rate, active time, and questions detected-->
+      <div class="stats-section">
+        <h2 class = 'gradient-text'>Statistics</h2>
+        <div class="stat-grid">
+          <div class="stat-item">
+            <p class="stat-value">0</p>
+            <p class="stat-label">Questions Answered</p>
+          </div>
+          <div class="stat-item">
+            <p class="stat-value">0</p>
+            <p class="stat-label">Success Rate</p>
+          </div>
+          <div class="stat-item">
+            <p class="stat-value">0</p>
+            <p class="stat-label">Active Time (min)</p>
+          </div>
+          <div class="stat-item">
+            <p class="stat-value">0</p>
+            <p class="stat-label">Questions Detected</p>
+          </div>
+        </div>
+      </div>
+
+      <!--<p id="output"></p>-->
+    </div>
+
+    
+    <script src="popup/popup.js" defer></script>
   </body>
 </html>

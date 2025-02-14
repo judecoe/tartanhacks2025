@@ -12,6 +12,8 @@ to be processed by OpenAI model and also receive from that server to interact wi
 //Keeps track of already processed questions
 let lastProcessedQuestion = null;
 
+let observerActive = false; // Track observer state
+
 console.log("✅ content.js is running...")
 //
 
@@ -293,7 +295,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     lastProcessedQuestion = null;
     
     console.log("Reinitializing content script...");
-    initializeExtraction();  // Restart everything properly
+    
+    startObserving();  // Restart everything properly
     
     console.log("Content script reinitialized.");
   }
@@ -305,6 +308,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     } else {
       console.warn("Could not handle answer:", message.answer);
     }
+  }
+
+  //Listens for message from popup.js and sends response with observerActive
+  if (message.action === "getObserverStatus") {
+    sendResponse({ observerActive });
+    return true; // Required for async sendResponse
+  }
+
+  // Listen for message 'toggleObservation' from popup to start observing and initializing everything
+  if (message.action === "toggleObservation") {
+    if (observerActive) {
+      stopObserving();
+    } else {
+      startObserving();
+    }
+    sendResponse({ observerActive });
+    return true;
   }
 });
 
@@ -327,42 +347,55 @@ const observer = new MutationObserver((mutations) => {
 });
 
 
-//Initialization Procedures (when page in first loaded this setups up everything in the script)---------------------------------------
+//Initialization Procedures (when the connect button is hit first loaded this setups up everything in the script)---------------------------------------
 
 // Add to initialization 
-function initializeExtraction() {
-  console.log("Initializing content script...");
+function startObserving() {
+  if (!observerActive) {
+    console.log("Observing content script...");
 
-  //Starts observing Dom by calling MutationObserver Object .observe and specifying which elements to observe.
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    characterData: true,
-  });
+    //Starts observing Dom by calling MutationObserver Object .observe and specifying which elements to observe.
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
 
-  //Delay the element search for DOM to load
-  setTimeout(() => {
-    console.log("Running extraction functions...");
-    extractTopHatContent();
-    clickOpenButton();
-    clickUnansweredQuestion();
-    //debugNotificationElements(); 
-  }, 500)
+    observerActive = true;
+
+    //Delay the element search for DOM to load
+    setTimeout(() => {
+      console.log("Running extraction functions...");
+      extractTopHatContent();
+      clickOpenButton();
+      clickUnansweredQuestion();
+      //debugNotificationElements(); 
+    }, 500)
+  }
 }
 
 //Checks current loading state of document and initializes the observer and immediately updates 
 // everything in either case (if document already loaded or is loading)
-if (document.readyState === "loading") {
-  console.log("Page loading, waiting for DOMContentLoaded...");
-  document.addEventListener("DOMContentLoaded", initializeExtraction);
-} else {
-  console.log("Page already loaded, running initialization now.");
-  initializeExtraction();
+// if (document.readyState === "loading") {
+//   console.log("Page loading, waiting for DOMContentLoaded...");
+//   document.addEventListener("DOMContentLoaded", initializeExtraction);
+// } else {
+//   console.log("Page already loaded, running initialization now.");
+//   initializeExtraction();
+// }
+
+// Function to stop observing
+function stopObserving() {
+  if (observerActive) {
+    console.log("Stopping observer...");
+    observer.disconnect();
+    observerActive = false;
+  }
 }
 
 
 
 //After window is unloaded, disconnect the observer--------------------------------------
 window.addEventListener("unload", () => {
-  observer.disconnect();
+  stopObserving(); //disconnect the observer and reset variable
 });

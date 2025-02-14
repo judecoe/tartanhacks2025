@@ -61,7 +61,7 @@
     border-radius: 2px;
   }
 
-  #findTab {
+  #toggleObserver {
     display: block;
     width: 100%;
     padding: 12px 20px;
@@ -76,7 +76,7 @@
     box-shadow: 0 2px 4px rgba(37, 150, 190, 0.2);
   }
 
-  #findTab:hover {
+  #toggleObserver:hover {
     background-color: var(--accent-color);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(37, 150, 190, 0.3);
